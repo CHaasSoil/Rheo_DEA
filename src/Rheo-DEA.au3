@@ -82,7 +82,6 @@ EndIf
 
 While $n < $Datenreihen
    MouseClick($MOUSE_CLICK_LEFT, 20, 130, 1)
-   ConsoleWrite("Debug000000")
    Sleep(500)
    ControlClick(WinActivate("ORX"), "","[CLASS:PYCCKTBL32; INSTANCE:1]","left", 1)
    MouseClick($MOUSE_CLICK_LEFT, $pos[0], $pos[1], 1)
