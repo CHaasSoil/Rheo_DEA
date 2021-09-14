@@ -1,10 +1,14 @@
+;Created by Christoph Haas Christoph_Haas@gmx.de Sept. 2021
 #include <AutoItConstants.au3>
 #include <FileConstants.au3>
 #Include <Misc.au3>
-Local $Datenreihen = InputBox("Wieviele Datenreihen befinden sich in der Datei?","Datenreihen:",4)
+Local $Datenreihen = InputBox("Datasets","Enter the number of Datasets in the ORX-file:",4)
+Local $delay = InputBox("Delay","Enter a value for the delay. 200 for small datasets and fast PCs, 400 or more for large datasets, i.e. >500 entrys. Enter 2000 for slow PCs. Delay:",400)
 Local $n = 0
 Global $data_nr = 0
 Global $pos = 0
+
+Global $square_pos = 0
 Global $x = 1
 Global $sFldr_LVE = @ScriptDir & "\LVE\"
 Global $sFldr_Curve = @ScriptDir & "\Curve\"
@@ -16,8 +20,22 @@ Global $sFldr_data = @ScriptDir & "\data\"
 ConsoleWrite("Cursor ueber Name in Tabellenblatt positionieren und Leertaste druecken!!")
 Opt("WinTitleMatchMode", 2)
 AutoItSetOption("WinTitleMatchMode",2)
-$aua = WinActivate("ORX")
-ControlClick($aua, "","[CLASS:ToolbarWindow32; INSTANCE:2]","left", 1,325,15)
+$RheoPlus = WinActivate("ORX")
+ControlClick($RheoPlus, "","[CLASS:ToolbarWindow32; INSTANCE:2]","left", 1,325,15)
+
+
+ConsoleWrite("Where is the square?")
+While $x=1
+	If _IsPressed("20") Then
+		$square_pos = MouseGetPos()
+		$x=0
+	EndIf
+WEnd
+ConsoleWrite($square_pos[0] &","& $square_pos[1])
+
+Sleep($delay)
+$x=1
+ConsoleWrite("Where is the name of the sample?")
 While $x=1
 	If _IsPressed("20") Then
 		$pos = MouseGetPos()
@@ -26,11 +44,11 @@ While $x=1
 WEnd
 ConsoleWrite($pos[0] &","& $pos[1])
 
-MouseClick($MOUSE_CLICK_LEFT, 20, 130, 1)
-MouseClick($MOUSE_CLICK_LEFT, 50, 130, 1)
-Sleep(500)
 
-Sleep(500)
+MouseClick($MOUSE_CLICK_LEFT, $square_pos[0], $square_pos[1], 1)
+MouseClick($MOUSE_CLICK_LEFT, $square_pos[0]+30, $square_pos[1], 1)
+Sleep($delay)
+
 ConsoleWrite("Start")
 
 
@@ -81,23 +99,23 @@ EndIf
 
 
 While $n < $Datenreihen
-   MouseClick($MOUSE_CLICK_LEFT, 20, 130, 1)
-   Sleep(500)
+   MouseClick($MOUSE_CLICK_LEFT, $square_pos[0], $square_pos[1], 1)
+   Sleep($delay)
    ControlClick(WinActivate("ORX"), "","[CLASS:PYCCKTBL32; INSTANCE:1]","left", 1)
    MouseClick($MOUSE_CLICK_LEFT, $pos[0], $pos[1], 1)
-   Sleep(500)
+   Sleep($delay)
    Send("^c")
-   Sleep(500)
+   Sleep($delay)
    $File_name = StringReplace(StringReplace(ClipGet(),@CRLF ,""),"/" ,"von")
    ConsoleWrite($File_name)
-   Sleep(800)
+   Sleep($delay)
    $n = $n + 1
    If StringInStr($File_name,"LVE")>1  Then
 		ConsoleWrite("LVE")
 		Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $out_file_name = StringReplace($sFldr_LVE & $File_name & ".txt", " ","_")
 		FileOpen($out_file_name,0)
 		FileWrite($out_file_name, ClipGet())
@@ -107,9 +125,9 @@ While $n < $Datenreihen
 	ElseIf StringInStr($File_name,"Curve")>1 Then
 		ConsoleWrite("Curve")
 		Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $out_file_name = StringReplace($sFldr_Curve & $File_name & ".txt", " ","_")
 		FileOpen($out_file_name,0)
 		FileWrite($out_file_name, ClipGet())
@@ -119,9 +137,9 @@ While $n < $Datenreihen
 	ElseIf StringInStr($File_name,"Cross")>1  Then
 		ConsoleWrite("Cross")
 				Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $out_file_name = StringReplace($sFldr_Cross & $File_name & ".txt", " ","_")
 		FileOpen($out_file_name,0)
 		FileWrite($out_file_name, ClipGet())
@@ -130,9 +148,9 @@ While $n < $Datenreihen
 	ElseIf StringInStr($File_name,"Integral")>1 Then
 		ConsoleWrite("Integral")
 				Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $out_file_name = StringReplace($sFldr_Integral & $File_name & ".txt", " ","_")
 		FileOpen($out_file_name,0)
 		FileWrite($out_file_name, ClipGet())
@@ -141,9 +159,9 @@ While $n < $Datenreihen
 	ElseIf StringInStr($File_name,"[")>1 Then
 		ConsoleWrite("Etwas komisches")
 				Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $out_file_name = StringReplace($sFldr_undefined & $File_name & ".txt", " ","_")
 		FileOpen($out_file_name,0)
 		FileWrite($out_file_name, ClipGet())
@@ -152,16 +170,16 @@ While $n < $Datenreihen
 	ElseIf StringInStr($File_name,"Yield")>1 Then
 		ConsoleWrite("Yield")
 		Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $out_file_name = StringReplace($sFldr_Yield & $File_name & ".txt", " ","_")
 		FileOpen($out_file_name,0)
 		FileWrite($out_file_name, ClipGet())
 		FileClose($out_file_name)
 
 ;		Else
-;			ConsoleWrite("Unexpected error")
+;			ConsoleWrite("Etwas komisches passierte")
 		;EndIf
 	ElseIf ClipGet()=="" Then
 		ConsoleWrite("empty clipboard => Exit")
@@ -170,9 +188,9 @@ While $n < $Datenreihen
 		ConsoleWrite("Probe, rein")
 		;Sleep(500)
 		Send("^a")
-		Sleep(500)
+		Sleep($delay)
 		Send("^c")
-		Sleep(500)
+		Sleep($delay)
 		Local $filename =  $sFldr_data & $data_nr & ".txt"
 		ConsoleWrite($filename)
 		FileOpen($filename,2)
@@ -180,11 +198,11 @@ While $n < $Datenreihen
 		FileClose($filename)
 		$data_nr = $data_nr + 1
    EndIf
-   MouseClick($MOUSE_CLICK_LEFT, 70, 130, 1)
+   MouseClick($MOUSE_CLICK_LEFT, $square_pos[0]+30, $square_pos[1], 1)
    Send("{DELETE}")
-   Sleep(500)
+   Sleep($delay)
    Send("{ENTER}")
-   Sleep(500)
+   Sleep($delay)
 WEnd
 
-;Sleep(5000)
+;Sleep(2000)
